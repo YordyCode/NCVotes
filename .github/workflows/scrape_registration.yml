@@ -41,7 +41,7 @@ jobs:
 
       - name: Pull latest changes
         run: |
-          git pull --rebase origin master || echo "Pull skipped or rebased manually"
+          git pull --rebase origin main || echo "Pull skipped or rebased manually"
 
       - name: Push changes
         uses: ad-m/github-push-action@v0.6.0
