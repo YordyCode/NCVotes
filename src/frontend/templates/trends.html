@@ -72,13 +72,11 @@
 <body>
     <nav>
         <div class="container">
-            <a href="{{ url_for('index') }}" class="logo" style="display: flex; align-items: center; gap: 0.6rem;">
-                <img src="{{ url_for('static', filename='images/NCET.png') }}" 
-                    alt="NCET Logo" 
-                    style="height:  35px; width: auto;">
-                NC ELECTIONS TRANSPARENCY
-            </a>
-            <ul class="nav-links">
+           <a href="{{ url_for('index') }}" class="logo">NC ELECTIONS TRANSPARENCY</a>
+            <button class="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="primary-nav">
+                <span></span><span></span><span></span>
+            </button>
+            <ul class="nav-links" id="primary-nav">
                 <li><a href="{{ url_for('index') }}#about">About</a></li>
                 <li><a href="{{ url_for('index') }}#data">Data</a></li>
                 <li><a href="{{ url_for('voting_info') }}">Voting Info</a></li>

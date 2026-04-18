@@ -700,49 +700,142 @@ footer p {
     font-size: 1.1rem;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-    .hero h1 {
-        font-size: 3rem;
-    }
-    
-    .hero .tagline {
-        font-size: 1.3rem;
-    }
-    
-    .section-header h2 {
-        font-size: 2.5rem;
-    }
-    
-    .viz-grid {
-        grid-template-columns: 1fr;
-        gap: 2rem;
-    }
-    
-    .stats-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .reasons-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .stat-number {
-        font-size: 3rem;
-    }
+/* ===== Global mobile safety ===== */
+html, body { overflow-x: hidden; }
+img, svg, video, iframe { max-width: 100%; height: auto; }
 
-    .container {
-        padding: 0 20px;
-    }
+/* ===== Hamburger button ===== */
+.nav-toggle {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    min-width: 44px;
+    min-height: 44px;
+}
+.nav-toggle span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--primary-color);
+    margin: 5px 0;
+    transition: transform 0.25s, opacity 0.25s;
+}
+.nav-toggle[aria-expanded="true"] span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.nav-toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+.nav-toggle[aria-expanded="true"] span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
+/* ===== Tablet and phone (<= 900px) ===== */
+@media (max-width: 900px) {
+    .container { padding: 0 20px; }
+
+    /* Nav -> hamburger */
+    nav .container { position: relative; flex-wrap: wrap; }
+    .nav-toggle { display: block; }
     .nav-links {
-        gap: 1rem;
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        gap: 0;
+        padding: 0.5rem 0 1rem;
     }
-    
-    .logo {
-        font-size: 1.1rem;
+    .nav-links.open { display: flex; }
+    .nav-links li { width: 100%; }
+    .nav-links a { display: block; padding: 0.9rem 0; font-size: 1.05rem; }
+
+    /* Hero + headers */
+    .hero { padding: 4rem 0 3rem; }
+    .hero h1 { font-size: 2.5rem; }
+    .hero .tagline { font-size: 1.15rem; margin-bottom: 2rem; }
+    .hero-cta { padding: 1rem 2rem; font-size: 1.05rem; width: 100%; text-align: center; }
+    .page-header { padding: 3rem 0 3.5rem; }
+    .page-header h1 { font-size: 2.25rem; }
+    .page-header .tagline { font-size: 1.1rem; }
+    .section-header { margin-bottom: 2.5rem; }
+    .section-header h2 { font-size: 2rem; }
+    .section-header p { font-size: 1.05rem; }
+
+    /* Collapse every grid to one column */
+    .viz-grid, .stats-grid, .reasons-grid, .api-grid,
+    .feature-list, .trend-grid, .demo-grid, .info-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1.5rem;
     }
-    
+
+    /* Sections + cards */
+    .stats-bar, .about, .why-matters, .api-section,
+    .visualizations, .featured, .latest-post-section,
+    .pull-quote-section, .voting-info-section { padding: 3rem 0; }
+    .about-content h2, .why-matters h2 { font-size: 2rem; }
+    .about-content p { font-size: 1.1rem; }
+    .about-content .highlight { padding: 1.25rem; margin: 2rem 0; }
+    .reason-item h3 { font-size: 1.4rem; }
+    .stat-number { font-size: 2.5rem; }
+
+    .viz-card h3 { font-size: 1.5rem; padding: 1.5rem 1.5rem 0.75rem; }
+    .viz-card-content { padding: 1rem 1.5rem 1.5rem; }
+    .viz-description { font-size: 1rem; margin-bottom: 1rem; }
+
+    /* Detail pages */
+    .detail-section { padding: 2.5rem 0; }
+    .detail-grid { gap: 2.5rem; }
+    .detail-info h2 { font-size: 1.75rem; }
+    .detail-info h3 { font-size: 1.25rem; }
+    .detail-info p { font-size: 1rem; line-height: 1.7; }
+
+    .stats-panel, .party-breakdown { padding: 1.5rem; }
+    .stat-item { padding: 1rem 0; flex-wrap: wrap; gap: 0.25rem; }
+    .stat-value1, .stat-value2 { font-size: 1.5rem; }
+
+    /* Pull quote */
+    .pull-quote-text { font-size: 1.15rem; }
+    .pull-quote-mark { font-size: 4rem; }
+
+    /* Latest post */
+    .latest-post-card { padding: 1.5rem; }
+    .latest-post-card h2 { font-size: 1.5rem; }
+    .latest-post-card p { font-size: 1rem; }
+
+    /* Blog */
+    .post-card h2 { font-size: 1.6rem; }
+    .post-summary { font-size: 1rem; }
+    .post-body { font-size: 1rem; }
+    .post-body h1 { font-size: 1.9rem; }
+    .post-body h2 { font-size: 1.5rem; }
+    .post-body h3 { font-size: 1.25rem; }
+    .post-body table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .post-body pre { overflow-x: auto; font-size: 0.85rem; }
+
+    /* Voting info quick-nav */
+    .quick-nav { padding: 1rem 0; }
+    .quick-nav-container { gap: 0.5rem; padding: 0 1rem; }
+    .quick-nav a { font-size: 0.95rem; padding: 0.5rem 0.75rem; }
+    .subsection { padding: 1.25rem; margin: 1.5rem 0; }
+
+    /* County selector + Plotly chart containers */
+    #county-select { flex: 1; min-width: 0; max-width: 100%; }
+    .chart-container { height: 420px !important; }
+
+    /* Tap targets */
+    .nav-links a, .hero-cta, .viz-link,
+    .post-read-more, .latest-post-link,
+    .quick-nav a { min-height: 44px; }
+}
+
+/* ===== Phone (<= 480px) ===== */
+@media (max-width: 480px) {
+    body { font-size: 16px; }
+    .container { padding: 0 16px; }
+    .hero h1 { font-size: 2rem; }
+    .hero .tagline { font-size: 1rem; }
+    .page-header h1 { font-size: 1.9rem; }
+    .section-header h2,
+    .about-content h2,
+    .why-matters h2 { font-size: 1.75rem; }
+    .stat-number { font-size: 2rem; }
+    .chart-container { height: 360px !important; }
+    .stats-panel, .party-breakdown, .subsection { padding: 1.25rem; }
 }
 
 /* Latest News Post on Homepage — add to src/frontend/static/css/style.css */
