@@ -6,232 +6,360 @@
     <title>{{ content.page_title }} - NC Elections Transparency</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <style>
+        /* ============ Page header overrides ============ */
+        .page-header { background: var(--primary-color); }
+
+        /* ============ Sticky quick nav (tab style) ============ */
+        .quick-nav {
+            background: var(--primary-color);
+            padding: 0.75rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .quick-nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 40px;
+            display: flex;
+            gap: 0.25rem;
+            flex-wrap: wrap;
+        }
+        .quick-nav a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            padding: 0.6rem 1.1rem;
+            border-bottom: 3px solid transparent;
+            transition: color 0.2s, border-color 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        .quick-nav a:hover { color: white; }
+        .quick-nav a.active {
+            color: white;
+            border-bottom-color: var(--accent-color);
+        }
+
+        /* ============ Sections ============ */
         .voting-info-section {
             padding: 4rem 0;
             border-bottom: 1px solid #e0e0e0;
         }
-        
-        .voting-info-section:last-child {
-            border-bottom: none;
+        .voting-info-section:last-child { border-bottom: none; }
+        .voting-info-section.dark-section {
+            background: var(--primary-color);
+            color: white;
         }
-        
-        .section-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            display: block;
+        .section-label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--accent-color);
+            margin-bottom: 0.5rem;
         }
-        
-        .section-header {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-        
         .section-header h2 {
-            font-size: 2.5rem;
+            font-size: 2.75rem;
             font-weight: 800;
-            color: var(--primary-color);
-            margin: 0;
+            margin: 0 0 1rem 0;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
         }
-        
+        .voting-info-section .section-header h2 { color: var(--primary-color); }
+        .voting-info-section.dark-section .section-header h2 { color: white; }
         .section-intro {
             font-size: 1.2rem;
-            color: var(--text-color);
-            margin-bottom: 2rem;
-            line-height: 1.8;
+            line-height: 1.7;
+            max-width: 820px;
+            margin: 0 0 3rem 0;
         }
-        
-        /* Timeline styles for ballot lifecycle */
-        .timeline {
+        .voting-info-section .section-intro { color: var(--text-color); }
+        .voting-info-section.dark-section .section-intro { color: rgba(255,255,255,0.9); }
+
+        /* ============ Ballot timeline — horizontal, animated ============ */
+        .ballot-timeline {
             position: relative;
-            padding-left: 3rem;
+            margin: 3rem 0 2rem;
+            padding: 0 1rem;
+        }
+        .bt-ballot-track {
+            position: relative;
+            height: 48px;
+            margin: 0 calc(100% / 14);
+        }
+        .bt-ballot {
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform: translateX(-50%);
+            transition: left 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.25));
+        }
+        .bt-track {
+            position: relative;
+            height: 6px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px;
+            margin: 0 calc(100% / 14);
+        }
+        .dark-section .bt-track { background: rgba(255,255,255,0.15); }
+        .bt-fill {
+            position: absolute;
+            top: 0; left: 0;
+            height: 100%;
+            background: var(--accent-color);
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .bt-stops {
+            display: flex;
+            justify-content: space-between;
+            margin-top: -22px;
+            position: relative;
+        }
+        .bt-stop {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 0;
+            font-family: inherit;
+        }
+        .bt-dot {
+            width: 42px; height: 42px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            border: 3px solid rgba(255,255,255,0.4);
+            color: white;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 2;
+        }
+        .dark-section .bt-dot { background: var(--primary-color); border-color: rgba(255,255,255,0.3); }
+        .bt-stop.done .bt-dot {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+        .bt-stop.active .bt-dot {
+            background: white;
+            color: var(--primary-color);
+            border-color: var(--accent-color);
+            transform: scale(1.2);
+            box-shadow: 0 0 0 6px rgba(255,94,54,0.25);
+        }
+        .bt-stop:hover .bt-dot {
+            transform: scale(1.1);
+        }
+        .bt-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-align: center;
+            margin-top: 0.75rem;
+            color: rgba(255,255,255,0.75);
+            line-height: 1.3;
+            max-width: 110px;
+            transition: color 0.2s;
+        }
+        .bt-stop.active .bt-label,
+        .bt-stop:hover .bt-label { color: white; }
+
+        /* Active step card */
+        .bt-detail {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-left: 4px solid var(--accent-color);
+            padding: 2rem 2.5rem;
+            margin-top: 3.5rem;
+            min-height: 140px;
+            transition: opacity 0.3s;
+        }
+        .bt-detail-step {
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            color: var(--accent-color);
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+        .bt-detail h3 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: white;
+            margin: 0 0 0.75rem 0;
+        }
+        .bt-detail p {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            color: rgba(255,255,255,0.9);
+            margin: 0;
+        }
+
+        /* Timeline controls */
+        .bt-controls {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .bt-btn {
+            background: transparent;
+            border: 2px solid rgba(255,255,255,0.4);
+            color: white;
+            padding: 0.65rem 1.3rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+            letter-spacing: 0.03em;
+        }
+        .bt-btn:hover { border-color: white; background: rgba(255,255,255,0.1); }
+        .bt-btn.primary {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+        .bt-btn.primary:hover { background: #ff7a5a; border-color: #ff7a5a; }
+        .bt-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* ============ Accordion subsections ============ */
+        .accordion-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
             margin: 2rem 0;
         }
-        
-        .timeline::before {
-            content: '';
-            position: absolute;
-            left: -1.1rem;
-            top: 0;
-            bottom: 0;
-            width: 6px;
-            background: linear-gradient(to bottom, #aa3a26,#1b9aaa);
-        }
-        
-        .timeline-item {
-            position: relative;
-            margin-bottom: 2.5rem;
-            padding-left: 1.5rem;
-        }
-        
-        .timeline-item::before {
-            content: attr(data-step);
-            position: absolute;
-            left: -2.25rem;
-            top: 0;
-            width: 2rem;
-            height: 2rem;
-            border-radius: 50%;
-            background: #a05c7b;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 0.9rem;
-            z-index: 1;
-        }
-        
-        .timeline-item h3 {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: var(--text-color);
-            margin-bottom: 0.5rem;
-        }
-        
-        .timeline-item p {
-            font-size: 1.05rem;
-            color: var(--text-light);
-            line-height: 1.7;
-        }
-        
-        /* Subsection styles */
-        .subsection {
-            margin: 2.5rem 0;
-            padding: 2rem;
-            background: #f8f9fa;
-            border-left: 4px solid #1e7cb3;
-        }
-        
-        .subsection h3 {
-            font-size: 1.6rem;
-            font-weight: 700;
-            color: var(--text-color);
-            margin-bottom: 1rem;
-        }
-        
-        .subsection-description {
-            font-size: 1.05rem;
-            color: var(--text-color);
-            margin-bottom: 1rem;
-            line-height: 1.7;
-        }
-        
-        .subsection ul {
-            margin: 1rem 0;
-            padding-left: 1.5rem;
-        }
-        
-        .subsection li {
-            font-size: 1.05rem;
-            color: var(--text-color);
-            line-height: 1.8;
-            margin-bottom: 0.75rem;
-        }
-        
-        .subsection li::marker {
-            color: #1e7cb3;
-        }
-        
-        .details-list {
-            margin-top: 1rem;
-            padding-left: 1.5rem;
-        }
-        
-        .details-list li {
-            font-size: 1rem;
-            color: var(--text-light);
-            margin-bottom: 0.5rem;
-        }
-        
-        /* Resources */
-        .resources {
-            margin-top: 2rem;
-            padding: 1.5rem;
+        .acc-item {
+            border: 1px solid #e0e0e0;
             background: white;
-            border: 2px solid #ff5e36;
+            transition: border-color 0.2s;
         }
-        
-        .resources h4 {
+        .acc-item.open { border-color: var(--secondary-color); }
+        .acc-btn {
+            width: 100%;
+            background: none;
+            border: none;
+            padding: 1.5rem 2rem;
+            font-family: inherit;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-color);
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+        .acc-btn:hover { color: var(--secondary-color); }
+        .acc-chev {
+            width: 24px; height: 24px;
+            flex-shrink: 0;
+            transition: transform 0.3s;
+            color: var(--secondary-color);
+        }
+        .acc-item.open .acc-chev { transform: rotate(180deg); }
+        .acc-panel {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+        }
+        .acc-item.open .acc-panel { max-height: 8000px; }
+        .acc-panel-inner { padding: 0 2rem 2rem 2rem; }
+
+        .subsection {
+            margin: 1.5rem 0;
+            padding: 1.5rem 1.75rem;
+            background: var(--bg-alt);
+            border-left: 4px solid var(--secondary-color);
+        }
+        .subsection h4 {
             font-size: 1.2rem;
             font-weight: 700;
-            color: var(--primary-color);
-            margin-bottom: 1rem;
+            color: var(--text-color);
+            margin: 0 0 0.75rem 0;
         }
-        
+        .subsection p {
+            font-size: 1rem;
+            color: var(--text-color);
+            margin: 0 0 0.75rem 0;
+            line-height: 1.7;
+        }
+        .subsection ul { margin: 0.75rem 0; padding-left: 1.5rem; }
+        .subsection li {
+            font-size: 1rem;
+            color: var(--text-color);
+            line-height: 1.7;
+            margin-bottom: 0.5rem;
+        }
+        .subsection li::marker { color: var(--secondary-color); }
+        .subsection .details-list li {
+            font-size: 0.95rem;
+            color: var(--text-light);
+        }
+
+        /* ============ Resources ============ */
+        .resources {
+            margin-top: 2rem;
+            padding: 1.5rem 1.75rem;
+            background: white;
+            border: 2px solid var(--accent-color);
+        }
+        .resources h4 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 0 0 1rem 0;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
         .resources a {
             display: block;
             color: var(--secondary-color);
-            font-size: 1.05rem;
+            font-size: 1rem;
             font-weight: 600;
             text-decoration: none;
-            margin-bottom: 0.75rem;
+            margin-bottom: 0.6rem;
             transition: color 0.2s;
         }
-        
-        .resources a:hover {
-            color: var(--primary-color);
-            text-decoration: underline;
+        .resources a:hover { color: var(--primary-color); text-decoration: underline; }
+        .resources a::before { content: '→ '; margin-right: 0.3rem; }
+
+        /* ============ Responsive ============ */
+        @media (max-width: 900px) {
+            .section-header h2 { font-size: 2rem; }
+            .bt-label { font-size: 0.7rem; max-width: 70px; }
+            .bt-dot { width: 34px; height: 34px; font-size: 0.85rem; }
+            .bt-detail { padding: 1.5rem; }
+            .bt-detail h3 { font-size: 1.35rem; }
         }
-        
-        .resources a::before {
-            content: '→ ';
-            margin-right: 0.5rem;
+        @media (max-width: 640px) {
+            .ballot-timeline { padding: 0; }
+            .bt-label { display: none; }
+            .bt-dot { width: 30px; height: 30px; font-size: 0.75rem; border-width: 2px; }
+            .bt-ballot-track { display: none; }
+            .acc-btn { padding: 1.25rem 1.25rem; font-size: 1.1rem; }
+            .acc-panel-inner { padding: 0 1.25rem 1.5rem; }
         }
-        
-        /* Quick nav */
-        .quick-nav {
-            background: var(--primary-color);
-            padding: 2rem 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        
-        .quick-nav-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2rem;
-            display: flex;
-            gap: 2rem;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        
-        .quick-nav a {
-            color: white;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 1.4rem;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            transition: background 0.2s;
-        }
-        
-        .quick-nav a:hover {
-            background: rgba(255,255,255,0.2);
+
+        @media (prefers-reduced-motion: reduce) {
+            .bt-ballot, .bt-fill, .bt-dot, .acc-chev, .acc-panel { transition: none; }
         }
     </style>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZJXK07RVHC"></script>
-    <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-
-    gtag('config', 'G-ZJXK07RVHC');
-    </script>
 </head>
 <body>
     <nav>
         <div class="container">
-            <a href="{{ url_for('index') }}" class="logo" style="display: flex; align-items: center; gap: 0.6rem;">
-                <img src="{{ url_for('static', filename='images/NCET.png') }}" 
-                    alt="NCET Logo" 
-                    style="height:  35px; width: auto;">
-                NC ELECTIONS TRANSPARENCY
-            </a>
+            <a href="{{ url_for('index') }}" class="logo">NC ELECTIONS TRANSPARENCY</a>
             <ul class="nav-links">
                 <li><a href="{{ url_for('index') }}#about">About</a></li>
                 <li><a href="{{ url_for('index') }}#data">Data</a></li>
@@ -254,7 +382,7 @@
     <div class="quick-nav">
         <div class="quick-nav-container">
             {% for section in content.sections %}
-            <a href="#{{ section.id }}">{{ section.title }}</a>
+            <a href="#{{ section.id }}" data-section="{{ section.id }}">{{ section.title }}</a>
             {% endfor %}
         </div>
     </div>
@@ -262,54 +390,99 @@
     <main>
         {% if content.sections %}
         {% for section in content.sections %}
-        <section class="voting-info-section" id="{{ section.id }}">
+        <section class="voting-info-section {% if section.id == 'ballot-lifecycle' %}dark-section{% endif %}" id="{{ section.id }}">
             <div class="container">
+                <div class="section-label">{{ '0' ~ loop.index }} / {{ 'Section' }}</div>
                 <div class="section-header">
-                    <span class="section-icon">{{ section.icon }}</span>
                     <h2>{{ section.title }}</h2>
                 </div>
-                
                 <p class="section-intro">{{ section.content.intro }}</p>
-                
+
+                {# ================== BALLOT LIFECYCLE — animated horizontal timeline ================== #}
                 {% if section.id == 'ballot-lifecycle' and section.content.timeline %}
-                    <div class="timeline">
+                <div class="ballot-timeline" id="ballot-timeline">
+                    <div class="bt-ballot-track">
+                        <svg class="bt-ballot" id="bt-ballot" width="56" height="48" viewBox="0 0 56 48" aria-hidden="true">
+                            <rect x="4" y="6" width="42" height="36" rx="2" fill="#ffffff" stroke="#16003f" stroke-width="1.5"/>
+                            <line x1="10" y1="14" x2="38" y2="14" stroke="#16003f" stroke-width="1.2"/>
+                            <line x1="10" y1="20" x2="32" y2="20" stroke="#16003f" stroke-width="1.2"/>
+                            <line x1="10" y1="26" x2="36" y2="26" stroke="#16003f" stroke-width="1.2"/>
+                            <path d="M11 34 L16 37 L22 31" stroke="#ff5e36" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+
+                    <div class="bt-track"><div class="bt-fill" id="bt-fill"></div></div>
+
+                    <div class="bt-stops" id="bt-stops">
                         {% for item in section.content.timeline %}
-                        <div class="timeline-item" data-step="{{ item.step }}">
-                            <h3>{{ item.title }}</h3>
-                            <p>{{ item.description }}</p>
-                        </div>
+                        <button type="button" class="bt-stop" data-step="{{ loop.index0 }}" aria-label="Step {{ item.step }}: {{ item.title }}">
+                            <div class="bt-dot">{{ item.step }}</div>
+                            <div class="bt-label">{{ item.title }}</div>
+                        </button>
                         {% endfor %}
                     </div>
+
+                    <div class="bt-detail" id="bt-detail" aria-live="polite">
+                        <div class="bt-detail-step" id="bt-detail-step">Step 1</div>
+                        <h3 id="bt-detail-title">{{ section.content.timeline[0].title }}</h3>
+                        <p id="bt-detail-desc">{{ section.content.timeline[0].description }}</p>
+                    </div>
+
+                    <div class="bt-controls">
+                        <button type="button" class="bt-btn" id="bt-prev">← Previous</button>
+                        <button type="button" class="bt-btn primary" id="bt-play">▶ Play the journey</button>
+                        <button type="button" class="bt-btn" id="bt-next">Next →</button>
+                    </div>
+                </div>
+
+                {# Inline timeline data for JS #}
+                <script type="application/json" id="ballot-timeline-data">
+                    {{ section.content.timeline | tojson }}
+                </script>
                 {% endif %}
-                
+
+                {# ================== SUBSECTIONS — accordion ================== #}
                 {% if section.content.subsections %}
+                <div class="accordion-grid">
                     {% for subsection in section.content.subsections %}
-                    <div class="subsection">
-                        <h3>{{ subsection.heading }}</h3>
-                        
-                        {% if subsection.description %}
-                        <p class="subsection-description">{{ subsection.description }}</p>
-                        {% endif %}
-                        
-                        {% if subsection.list_items %}
-                        <ul>
-                            {% for item in subsection.list_items %}
-                            <li>{{ item }}</li>
-                            {% endfor %}
-                        </ul>
-                        {% endif %}
-                        
-                        {% if subsection.detail_items %}
-                        <ul class="details-list">
-                            {% for detail in subsection.detail_items %}
-                            <li>{{ detail }}</li>
-                            {% endfor %}
-                        </ul>
-                        {% endif %}
+                    <div class="acc-item {% if loop.first %}open{% endif %}">
+                        <button type="button" class="acc-btn" aria-expanded="{{ 'true' if loop.first else 'false' }}">
+                            <span>{{ subsection.heading }}</span>
+                            <svg class="acc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </button>
+                        <div class="acc-panel">
+                            <div class="acc-panel-inner">
+                                {% if subsection.description %}
+                                <p style="font-size:1.05rem;line-height:1.7;color:var(--text-color);margin:1rem 0;">{{ subsection.description }}</p>
+                                {% endif %}
+                                {% if subsection.list_items %}
+                                <div class="subsection">
+                                    <ul>
+                                        {% for item in subsection.list_items %}
+                                        <li>{{ item }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                                {% endif %}
+                                {% if subsection.detail_items %}
+                                <div class="subsection">
+                                    <ul class="details-list">
+                                        {% for detail in subsection.detail_items %}
+                                        <li>{{ detail }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
                     </div>
                     {% endfor %}
+                </div>
                 {% endif %}
-                
+
+                {# ================== RESOURCES ================== #}
                 {% if section.content.resources %}
                 <div class="resources">
                     <h4>Additional Resources</h4>
@@ -330,19 +503,124 @@
         {% endif %}
     </main>
 
-     <footer>
+    <footer>
         <div class="container">
-            <p>
-                Dislaimer: NC Elections Transparency is an independent organization, not associated with any party or government. 
-            </p>
-            <p>
-                Data source: 
-                <a href="https://www.ncsbe.gov/" target="_blank" rel="noopener">
-                    NC State Board of Elections
-                </a>
+            <p>Data source:
+                <a href="https://www.ncsbe.gov/" target="_blank" rel="noopener">NC State Board of Elections</a>
             </p>
             <p>&copy; 2026 NC Elections Transparency Project</p>
         </div>
     </footer>
+
+    <script>
+    (function () {
+        // ================== Ballot timeline ==================
+        var dataEl = document.getElementById('ballot-timeline-data');
+        if (dataEl) {
+            var steps = JSON.parse(dataEl.textContent);
+            var stops = document.querySelectorAll('#bt-stops .bt-stop');
+            var fill = document.getElementById('bt-fill');
+            var ballot = document.getElementById('bt-ballot');
+            var dStep = document.getElementById('bt-detail-step');
+            var dTitle = document.getElementById('bt-detail-title');
+            var dDesc = document.getElementById('bt-detail-desc');
+            var btnPrev = document.getElementById('bt-prev');
+            var btnNext = document.getElementById('bt-next');
+            var btnPlay = document.getElementById('bt-play');
+            var current = 0;
+            var playing = false;
+            var playTimer = null;
+
+            function render(i) {
+                current = Math.max(0, Math.min(steps.length - 1, i));
+                stops.forEach(function (el, idx) {
+                    el.classList.remove('active', 'done');
+                    if (idx < current) el.classList.add('done');
+                    if (idx === current) el.classList.add('active');
+                });
+                var pct = steps.length <= 1 ? 0 : (current / (steps.length - 1)) * 100;
+                fill.style.width = pct + '%';
+                ballot.style.left = pct + '%';
+                var step = steps[current];
+                dStep.textContent = 'Step ' + step.step;
+                dTitle.textContent = step.title;
+                dDesc.textContent = step.description;
+                btnPrev.disabled = current === 0;
+                btnNext.disabled = current === steps.length - 1;
+            }
+
+            stops.forEach(function (el) {
+                el.addEventListener('click', function () {
+                    stopPlay();
+                    render(parseInt(el.getAttribute('data-step'), 10));
+                });
+            });
+            btnPrev.addEventListener('click', function () { stopPlay(); render(current - 1); });
+            btnNext.addEventListener('click', function () { stopPlay(); render(current + 1); });
+            btnPlay.addEventListener('click', function () {
+                if (playing) { stopPlay(); return; }
+                playing = true;
+                btnPlay.textContent = '⏸ Pause';
+                var i = 0;
+                render(i);
+                playTimer = setInterval(function () {
+                    i++;
+                    if (i >= steps.length) { stopPlay(); return; }
+                    render(i);
+                }, 1800);
+            });
+
+            function stopPlay() {
+                playing = false;
+                btnPlay.textContent = '▶ Play the journey';
+                if (playTimer) { clearInterval(playTimer); playTimer = null; }
+            }
+
+            // Scroll-triggered initial animation: when timeline enters view, play once.
+            var autoPlayed = false;
+            if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                var io = new IntersectionObserver(function (entries) {
+                    entries.forEach(function (entry) {
+                        if (entry.isIntersecting && !autoPlayed) {
+                            autoPlayed = true;
+                            btnPlay.click();
+                        }
+                    });
+                }, { threshold: 0.4 });
+                io.observe(document.getElementById('ballot-timeline'));
+            }
+
+            render(0);
+        }
+
+        // ================== Accordions ==================
+        document.querySelectorAll('.acc-item').forEach(function (item) {
+            var btn = item.querySelector('.acc-btn');
+            btn.addEventListener('click', function () {
+                var isOpen = item.classList.toggle('open');
+                btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            });
+        });
+
+        // ================== Quick-nav active state on scroll ==================
+        var navLinks = document.querySelectorAll('.quick-nav a[data-section]');
+        var sections = Array.prototype.map.call(navLinks, function (a) {
+            return document.getElementById(a.getAttribute('data-section'));
+        }).filter(Boolean);
+
+        if ('IntersectionObserver' in window && sections.length) {
+            var navIo = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    if (entry.isIntersecting) {
+                        navLinks.forEach(function (a) { a.classList.remove('active'); });
+                        var match = document.querySelector('.quick-nav a[data-section="' + entry.target.id + '"]');
+                        if (match) match.classList.add('active');
+                    }
+                });
+            }, { rootMargin: '-40% 0px -50% 0px' });
+            sections.forEach(function (s) { navIo.observe(s); });
+        }
+    })();
+    </script>
 </body>
 </html>
