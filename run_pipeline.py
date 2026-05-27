@@ -163,6 +163,63 @@ def run_server_only():
     except KeyboardInterrupt:
         logger.info("\nWeb server stopped by user")
 
+def run_pipeline_no_server():
+    """Run the complete data pipeline without starting the web server."""
+    logger.info("=" * 60)
+    logger.info("Starting NC Elections Pipeline (no server)")
+    logger.info("=" * 60)
+
+    # Step 1: Database connection
+    logger.info("\n[1/6] Testing database connection...")
+    if not test_connection():
+        logger.error("Database connection failed.")
+        return False
+    logger.info("Database connection successful")
+
+    # Step 2: Scrape registration data
+    logger.info("\n[2/6] Scraping voter registration data...")
+    if not scraper_reg.scrape_registration():
+        logger.error("Registration scraping failed")
+        return False
+    logger.info("Registration data scraped")
+
+    # Step 3: Load raw voters
+    logger.info("\n[3/6] Loading raw voter data to database...")
+    logger.warning("This will take 30-60 minutes for 9M+ records...")
+    if not load_raw_voters.load_raw_voters():
+        logger.error("Raw voter data loading failed")
+        return False
+    logger.info("Raw voter data loaded")
+
+    # Step 4: Demographics
+    logger.info("\n[4/6] Generating demographics visualizations...")
+    try:
+        demographics.generate_all_demographics_charts()
+        logger.info("Demographics complete")
+    except Exception as e:
+        logger.warning(f"Demographics failed (non-critical): {e}")
+
+    # Step 5: Trends
+    logger.info("\n[5/6] Generating trends visualizations...")
+    try:
+        trends.generate_all_trends()
+        logger.info("Trends complete")
+    except Exception as e:
+        logger.warning(f"Trends failed (non-critical): {e}")
+
+    # Step 6: Maps
+    logger.info("\n[6/6] Generating interactive county maps...")
+    try:
+        create_all_maps()
+        logger.info("Maps complete")
+    except Exception as e:
+        logger.warning(f"Map generation failed (non-critical): {e}")
+
+    logger.info("=" * 60)
+    logger.info("Pipeline completed successfully")
+    logger.info("=" * 60)
+    return True
+
 def main():
     """Main entry point with command-line argument handling."""
     if len(sys.argv) > 1:
@@ -178,6 +235,9 @@ def main():
             run_server_only()
         elif command == "full":
             run_full_pipeline()
+        elif command == "pipeline":
+            success = run_pipeline_no_server()
+            sys.exit(0 if success else 1)
         else:
             print("Usage: python run_pipeline.py [scrape|etl|viz|server|full]")
             print("  scrape - Download data only")
@@ -185,6 +245,7 @@ def main():
             print("  viz    - Generate visualizations only")
             print("  server - Start web server only")
             print("  full   - Run complete pipeline + start server (default)")
+            print("  pipeline - Run scrape + ETL + viz (no server, for cloud cron)")
             sys.exit(1)
     else:
         # Default: run full pipeline
