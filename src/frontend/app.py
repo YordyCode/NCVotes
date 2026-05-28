@@ -47,6 +47,7 @@ import os
 if os.getenv('ENVIRONMENT') == 'production':
     app.config['DEBUG'] = False
     app.config['TESTING'] = False
+    app.config['MAINTENANCE_BANNER'] = True   # show banner
 
 # Add this route to src/frontend/app.py
 # Place it before the main() function, after the other route definitions
