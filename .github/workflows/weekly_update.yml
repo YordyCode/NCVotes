@@ -1,0 +1,107 @@
+name: Weekly Voter Data Update
+
+on:
+  schedule:
+    # 08:00 UTC Sunday (04:00 ET). NC SBE posts the snapshot on Saturday.
+    - cron: '0 8 * * 0'
+  workflow_dispatch:
+    inputs:
+      skip_scrape:
+        description: 'Skip the download and use the committed file'
+        type: boolean
+        default: false
+      in_place:
+        description: 'Load with TRUNCATE instead of a table swap'
+        type: boolean
+        default: false
+
+# One run at a time. A second run must not load the same table.
+concurrency:
+  group: voter-data-update
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      EMAIL_ENABLED: ${{ secrets.EMAIL_ENABLED }}
+      EMAIL_USER: ${{ secrets.EMAIL_USER }}
+      EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+      EMAIL_TO: ${{ secrets.EMAIL_TO }}
+      PYTHONUNBUFFERED: '1'
+
+    steps:
+      - name: Fail early if the database secret is missing
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "DATABASE_URL secret is not set."
+            echo "Add the Render EXTERNAL connection string as a repository secret."
+            exit 1
+          fi
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Free disk space
+        run: |
+          df -h /
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/lib/android \
+                      /usr/local/share/boost "$AGENT_TOOLSDIRECTORY" || true
+          df -h /
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run weekly update
+        run: |
+          ARGS=""
+          if [ "${{ inputs.skip_scrape }}" = "true" ]; then ARGS="$ARGS --skip-scrape"; fi
+          if [ "${{ inputs.in_place }}" = "true" ]; then ARGS="$ARGS --in-place"; fi
+          python weekly_update.py $ARGS
+
+      - name: Remove downloaded source data
+        if: always()
+        run: |
+          find data/raw -type f ! -name 'manifest.json' ! -name '.gitkeep' -delete || true
+          df -h /
+
+      - name: Commit regenerated outputs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A outputs data/raw/manifest.json
+          if git diff --cached --quiet; then
+            echo "No output changes to commit"
+            exit 0
+          fi
+          git commit -m "chore: weekly voter data refresh $(date -u +%Y-%m-%d)"
+          git pull --rebase --autostash origin ${{ github.ref_name }}
+          git push origin HEAD:${{ github.ref_name }}
+
+      - name: Trigger Render deploy
+        if: success() && env.RENDER_DEPLOY_HOOK != ''
+        env:
+          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+        run: curl -fsS -X POST "$RENDER_DEPLOY_HOOK"
+
+      - name: Upload log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: weekly-update-log
+          path: weekly_update.log
+          if-no-files-found: ignore
