@@ -8,8 +8,8 @@ instead of pandas to_sql.
 
 Usage:
     python weekly_update.py
-    python weekly_update.py --skip-scrape
-    python weekly_update.py --in-place
+    python weekly_update.py --mode truncate-first
+    python weekly_update.py --skip-scrape --only-columns config/load_columns.txt
 """
 import argparse
 import logging
@@ -36,12 +36,15 @@ def step(number, total, name):
 
 def main():
     parser = argparse.ArgumentParser(description="Weekly data refresh")
+    parser.add_argument("--mode", default="swap",
+                        choices=["swap", "in-place", "truncate-first"],
+                        help="Load strategy. truncate-first needs the least storage")
+    parser.add_argument("--only-columns",
+                        help="Path to a file that lists the columns to load")
     parser.add_argument("--skip-scrape", action="store_true",
                         help="Use the file already in data/raw")
     parser.add_argument("--skip-load", action="store_true",
                         help="Regenerate outputs only")
-    parser.add_argument("--in-place", action="store_true",
-                        help="Load with TRUNCATE instead of table swap")
     args = parser.parse_args()
 
     total = 5
@@ -51,23 +54,23 @@ def main():
         logger.error("Database connection failed")
         return 1
 
-    if not args.skip_scrape:
+    if args.skip_scrape:
+        logger.info("[2/5] Download skipped")
+    else:
         step(2, total, "Download voter registration file")
         from src.scraper import registration
         if not registration.scrape_registration():
             logger.error("Download failed")
             return 1
-    else:
-        logger.info("[2/5] Download skipped")
 
-    if not args.skip_load:
+    if args.skip_load:
+        logger.info("[3/5] Load skipped")
+    else:
         step(3, total, "Bulk load voter file")
         from src.etl.fast_load_voters import fast_load_voters
-        if not fast_load_voters(in_place=args.in_place):
+        if not fast_load_voters(mode=args.mode, only_columns=args.only_columns):
             logger.error("Load failed")
             return 1
-    else:
-        logger.info("[3/5] Load skipped")
 
     step(4, total, "Generate charts and key statistics")
     failures = []

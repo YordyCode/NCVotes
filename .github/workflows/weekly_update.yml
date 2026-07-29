@@ -6,16 +6,19 @@ on:
     - cron: '0 8 * * 0'
   workflow_dispatch:
     inputs:
+      mode:
+        description: 'Load strategy'
+        type: choice
+        default: 'truncate-first'
+        options:
+          - swap
+          - in-place
+          - truncate-first
       skip_scrape:
         description: 'Skip the download and use the committed file'
         type: boolean
         default: false
-      in_place:
-        description: 'Load with TRUNCATE instead of a table swap'
-        type: boolean
-        default: false
 
-# One run at a time. A second run must not load the same table.
 concurrency:
   group: voter-data-update
   cancel-in-progress: false
@@ -26,7 +29,7 @@ permissions:
 jobs:
   update:
     runs-on: ubuntu-latest
-    timeout-minutes: 330
+    timeout-minutes: 240
 
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
@@ -35,13 +38,14 @@ jobs:
       EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
       EMAIL_TO: ${{ secrets.EMAIL_TO }}
       PYTHONUNBUFFERED: '1'
+      LOAD_MODE: ${{ inputs.mode || 'swap' }}
 
     steps:
       - name: Fail early if the database secret is missing
         run: |
           if [ -z "$DATABASE_URL" ]; then
             echo "DATABASE_URL secret is not set."
-            echo "Add the Render EXTERNAL connection string as a repository secret."
+            echo "Use the Render EXTERNAL connection string."
             exit 1
           fi
 
@@ -50,7 +54,6 @@ jobs:
 
       - name: Free disk space
         run: |
-          df -h /
           sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/lib/android \
                       /usr/local/share/boost "$AGENT_TOOLSDIRECTORY" || true
           df -h /
@@ -66,20 +69,48 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Report database space before the load
+        run: python check_db_space.py
+
       - name: Run weekly update
+        id: run
         run: |
-          ARGS=""
+          set +e
+          ARGS="--mode $LOAD_MODE --only-columns config/load_columns.txt"
           if [ "${{ inputs.skip_scrape }}" = "true" ]; then ARGS="$ARGS --skip-scrape"; fi
-          if [ "${{ inputs.in_place }}" = "true" ]; then ARGS="$ARGS --in-place"; fi
           python weekly_update.py $ARGS
+          CODE=$?
+          set -e
+          echo "exit_code=$CODE" >> "$GITHUB_OUTPUT"
+          if [ "$CODE" -eq 137 ] || [ "$CODE" -eq 139 ]; then
+            echo "::error::Process killed by the operating system (exit $CODE)."
+            echo "::error::This is a runner memory or resource limit, not a database error."
+          elif [ "$CODE" -ne 0 ]; then
+            echo "::error::weekly_update.py exited with code $CODE. See the log tail below."
+          fi
+          tail -n 40 weekly_update.log || true
+          exit $CODE
+
+      - name: Report database space after the load
+        if: always()
+        continue-on-error: true
+        run: python check_db_space.py
 
       - name: Remove downloaded source data
         if: always()
         run: |
           find data/raw -type f ! -name 'manifest.json' ! -name '.gitkeep' -delete || true
-          df -h /
+
+      - name: Upload log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: weekly-update-log
+          path: weekly_update.log
+          if-no-files-found: ignore
 
       - name: Commit regenerated outputs
+        if: steps.run.outputs.exit_code == '0'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -93,15 +124,7 @@ jobs:
           git push origin HEAD:${{ github.ref_name }}
 
       - name: Trigger Render deploy
-        if: success() && env.RENDER_DEPLOY_HOOK != ''
+        if: steps.run.outputs.exit_code == '0' && env.RENDER_DEPLOY_HOOK != ''
         env:
           RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
         run: curl -fsS -X POST "$RENDER_DEPLOY_HOOK"
-
-      - name: Upload log on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: weekly-update-log
-          path: weekly_update.log
-          if-no-files-found: ignore

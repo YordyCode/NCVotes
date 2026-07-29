@@ -1,0 +1,40 @@
+# Columns loaded into raw.raw_voters.
+#
+# Every column here is read by a query in src/database/queries.py,
+# queries_trends.py, queries_key_stats.py, or src/email/notifications.py.
+# Columns left out stay in the table but hold NULL, so row width drops by
+# roughly 75 percent. Names, addresses, phone numbers, and the 40-plus
+# jurisdiction columns are the bulk of the width and no page reads them.
+#
+# Use with:
+#   python weekly_update.py --mode truncate-first \
+#          --only-columns config/load_columns.txt
+#
+# Before you add a column back, check that a query needs it. Before you
+# remove one, grep for it in src/database/ and src/email/.
+
+# Geography
+county_desc
+precinct_desc
+
+# Registration status
+status_cd
+voter_status_desc
+
+# Demographics
+party_cd
+race_code
+ethnic_code
+gender_code
+birth_year
+age_at_year_end
+
+# Computed by the loader from birth_year
+age_group
+
+# Registration date. Trend and key-statistic queries all read this.
+registr_dt
+
+# Uncomment to keep the join key to the ncvhis voter history file.
+# Costs about 120 MB at 9 million rows.
+# ncid
