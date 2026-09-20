@@ -1,121 +1,121 @@
 {
-  "current_total": 7841778,
+  "current_total": 7846366,
   "new_registrations": {
-    "2_weeks": 7651,
-    "last_election": 453651,
-    "last_general": 819959,
-    "2_years": 1170417,
-    "4_years": 2153556
+    "2_weeks": 7178,
+    "last_election": 463944,
+    "last_general": 829764,
+    "2_years": 1146214,
+    "4_years": 2151171
   },
   "party_new_regs": {
     "2_weeks": [
       {
         "party": "DEM",
-        "total": 1936
+        "total": 1954
       },
       {
         "party": "GRE",
-        "total": 14
+        "total": 16
       },
       {
         "party": "LIB",
-        "total": 51
+        "total": 44
       },
       {
         "party": "REP",
-        "total": 1433
+        "total": 1325
       },
       {
         "party": "UNA",
-        "total": 4217
+        "total": 3839
       }
     ],
     "last_election": [
       {
         "party": "DEM",
-        "total": 100199
+        "total": 103045
       },
       {
         "party": "GRE",
-        "total": 673
+        "total": 696
       },
       {
         "party": "LIB",
-        "total": 2674
+        "total": 2750
       },
       {
         "party": "REP",
-        "total": 95072
+        "total": 96998
       },
       {
         "party": "UNA",
-        "total": 255033
+        "total": 260455
       }
     ],
     "last_general": [
       {
         "party": "DEM",
-        "total": 181013
+        "total": 183780
       },
       {
         "party": "GRE",
-        "total": 1109
+        "total": 1131
       },
       {
         "party": "LIB",
-        "total": 5154
+        "total": 5225
       },
       {
         "party": "REP",
-        "total": 189776
+        "total": 191550
       },
       {
         "party": "UNA",
-        "total": 442907
+        "total": 448078
       }
     ],
     "2_years": [
       {
         "party": "DEM",
-        "total": 277555
+        "total": 271470
       },
       {
         "party": "GRE",
-        "total": 1665
+        "total": 1647
       },
       {
         "party": "LIB",
-        "total": 7346
+        "total": 7227
       },
       {
         "party": "REP",
-        "total": 293517
+        "total": 287369
       },
       {
         "party": "UNA",
-        "total": 590334
+        "total": 578501
       }
     ],
     "4_years": [
       {
         "party": "DEM",
-        "total": 511557
+        "total": 511000
       },
       {
         "party": "GRE",
-        "total": 3278
+        "total": 3285
       },
       {
         "party": "LIB",
-        "total": 14672
+        "total": 14633
       },
       {
         "party": "REP",
-        "total": 543983
+        "total": 542786
       },
       {
         "party": "UNA",
-        "total": 1080066
+        "total": 1079467
       }
     ]
   },
@@ -123,111 +123,111 @@
     "2_weeks": [
       {
         "age_group": "18-25",
-        "total": 2226
+        "total": 2064
       },
       {
         "age_group": "26-35",
-        "total": 1690
+        "total": 1570
       },
       {
         "age_group": "36-50",
-        "total": 1521
+        "total": 1375
       },
       {
         "age_group": "51-65",
-        "total": 1257
+        "total": 1165
       },
       {
         "age_group": "65+",
-        "total": 957
+        "total": 1004
       }
     ],
     "last_election": [
       {
         "age_group": "18-25",
-        "total": 289984
+        "total": 292750
       },
       {
         "age_group": "26-35",
-        "total": 174141
+        "total": 176330
       },
       {
         "age_group": "36-50",
-        "total": 151800
+        "total": 153709
       },
       {
         "age_group": "51-65",
-        "total": 121024
+        "total": 122677
       },
       {
         "age_group": "65+",
-        "total": 83010
+        "total": 84298
       }
     ],
     "last_general": [
       {
         "age_group": "18-25",
-        "total": 289984
+        "total": 292750
       },
       {
         "age_group": "26-35",
-        "total": 174141
+        "total": 176330
       },
       {
         "age_group": "36-50",
-        "total": 151800
+        "total": 153709
       },
       {
         "age_group": "51-65",
-        "total": 121024
+        "total": 122677
       },
       {
         "age_group": "65+",
-        "total": 83010
+        "total": 84298
       }
     ],
     "2_years": [
       {
         "age_group": "18-25",
-        "total": 377030
+        "total": 371092
       },
       {
         "age_group": "26-35",
-        "total": 273079
+        "total": 266080
       },
       {
         "age_group": "36-50",
-        "total": 232519
+        "total": 226881
       },
       {
         "age_group": "51-65",
-        "total": 172738
+        "total": 169411
       },
       {
         "age_group": "65+",
-        "total": 115051
+        "total": 112750
       }
     ],
     "4_years": [
       {
         "age_group": "18-25",
-        "total": 647878
+        "total": 648536
       },
       {
         "age_group": "26-35",
-        "total": 495672
+        "total": 495071
       },
       {
         "age_group": "36-50",
-        "total": 446137
+        "total": 444934
       },
       {
         "age_group": "51-65",
-        "total": 329851
+        "total": 329251
       },
       {
         "age_group": "65+",
-        "total": 234018
+        "total": 233379
       }
     ]
   },
@@ -235,11 +235,11 @@
     "2_weeks": [
       {
         "gender": "F",
-        "total": 3539
+        "total": 3365
       },
       {
         "gender": "M",
-        "total": 3038
+        "total": 2739
       },
       {
         "gender": "U",
@@ -249,57 +249,57 @@
     "last_election": [
       {
         "gender": "F",
-        "total": 196899
+        "total": 201923
       },
       {
         "gender": "M",
-        "total": 176172
+        "total": 180257
       },
       {
         "gender": "U",
-        "total": 80579
+        "total": 81763
       }
     ],
     "last_general": [
       {
         "gender": "F",
-        "total": 366547
+        "total": 371383
       },
       {
         "gender": "M",
-        "total": 332607
+        "total": 336539
       },
       {
         "gender": "U",
-        "total": 120804
+        "total": 121841
       }
     ],
     "2_years": [
       {
         "gender": "F",
-        "total": 511455
+        "total": 502405
       },
       {
         "gender": "M",
-        "total": 457957
+        "total": 451197
       },
       {
         "gender": "U",
-        "total": 201003
+        "total": 192610
       }
     ],
     "4_years": [
       {
         "gender": "F",
-        "total": 944689
+        "total": 944431
       },
       {
         "gender": "M",
-        "total": 850285
+        "total": 849847
       },
       {
         "gender": "U",
-        "total": 358580
+        "total": 356891
       }
     ]
   }
