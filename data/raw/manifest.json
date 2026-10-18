@@ -520,5 +520,24 @@
       "size_bytes": 4356599341,
       "extracted_from": "ncvoter_statewide_20261011_143739.zip"
     }
+  },
+  {
+    "filename": "ncvoter_statewide_20261018_122640.zip",
+    "url": "https://s3.amazonaws.com/dl.ncsbe.gov/data/ncvoter_Statewide.zip",
+    "file_type": "registration_zip",
+    "downloaded_at": "2026-10-18T12:26:50Z",
+    "metadata": {
+      "size_bytes": 524777531
+    }
+  },
+  {
+    "filename": "ncvoter_Statewide.txt",
+    "url": "https://s3.amazonaws.com/dl.ncsbe.gov/data/ncvoter_Statewide.zip",
+    "file_type": "registration_data",
+    "downloaded_at": "2026-10-18T12:27:00Z",
+    "metadata": {
+      "size_bytes": 4363854942,
+      "extracted_from": "ncvoter_statewide_20261018_122640.zip"
+    }
   }
 ]
